@@ -14,6 +14,7 @@ class JsonTable
         if (file_exists($_jsonFile)) {
             $this->jsonFile = $_jsonFile;
             $this->fileData = json_decode(file_get_contents($this->jsonFile), true);
+            $this->checkJson();
             $this->lockFile();
         } else {
             throw new \Exception("JsonTable Error: File not found: " . $_jsonFile);
@@ -26,6 +27,37 @@ class JsonTable
     {
         $this->save();
         fclose($this->fileHandle);
+    }
+
+    protected function checkJson()
+    {
+        $error = '';
+        switch (json_last_error()) {
+            case JSON_ERROR_NONE:
+                break;
+            case JSON_ERROR_DEPTH:
+                $error = 'Maximum stack depth exceeded';
+                break;
+            case JSON_ERROR_STATE_MISMATCH:
+                $error = 'Underflow or the modes mismatch';
+                break;
+            case JSON_ERROR_CTRL_CHAR:
+                $error = 'Unexpected control character found';
+                break;
+            case JSON_ERROR_SYNTAX:
+                $error = 'Syntax error, malformed JSON';
+                break;
+            case JSON_ERROR_UTF8:
+                $error = 'Malformed UTF-8 characters, possibly incorrectly encoded';
+                break;
+            default:
+                $error = 'Unknown error';
+                break;
+        }
+
+        if ($error !== '') {
+            throw new \Exception('Invalid JSON: ' . $error);
+        }
     }
 
     public function setPrettyOutput($val)
@@ -53,6 +85,10 @@ class JsonTable
             $flags = JSON_PRETTY_PRINT;
         } else {
             $flags = 0;
+        }
+
+        if ($this->fileData == null) {
+            throw new \Exception("JsonTable Error: Refusing to write null data to: " . $this->jsonFile);
         }
 
         if (fwrite($this->fileHandle, json_encode($this->fileData, $flags))) {
