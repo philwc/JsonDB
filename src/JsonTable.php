@@ -7,6 +7,7 @@ class JsonTable
     protected $jsonFile;
     protected $fileHandle;
     protected $fileData = array();
+    protected $prettyOutput;
 
     public function __construct($_jsonFile)
     {
@@ -17,12 +18,23 @@ class JsonTable
         } else {
             throw new \Exception("JsonTable Error: File not found: " . $_jsonFile);
         }
+
+        $this->prettyOutput = true;
     }
 
     public function __destruct()
     {
         $this->save();
         fclose($this->fileHandle);
+    }
+
+    public function setPrettyOutput($val)
+    {
+        if (is_bool($val)) {
+            $this->prettyOutput = $val;
+        } else {
+            throw new \Exception('Error. Please supply a bool value');
+        }
     }
 
     protected function lockFile()
@@ -37,7 +49,13 @@ class JsonTable
 
     protected function save()
     {
-        if (fwrite($this->fileHandle, json_encode($this->fileData))) {
+        if ($this->prettyOutput) {
+            $flags = JSON_PRETTY_PRINT;
+        } else {
+            $flags = 0;
+        }
+
+        if (fwrite($this->fileHandle, json_encode($this->fileData, $flags))) {
             return true;
         } else {
             throw new \Exception("JsonTable Error: Can't write data to: " . $this->jsonFile);
