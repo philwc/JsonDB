@@ -8,11 +8,23 @@ class JsonDB
     protected $fileExt = ".json";
     protected $tables = array();
 
+    /**
+     * Construct
+     *
+     * @param $path
+     */
     public function __construct($path)
     {
         $this->validatePath($path);
     }
 
+    /**
+     * Validate Path
+     *
+     * @param $path
+     *
+     * @throws JsonDBException
+     */
     private function validatePath($path)
     {
         if (is_dir($path)) {
@@ -21,10 +33,17 @@ class JsonDB
             }
             $this->path = $path;
         } else {
-            throw new \Exception("JsonDB Error: Path not found");
+            throw new JsonDBException('Path not found');
         }
     }
 
+    /**
+     * Get Table Instance
+     *
+     * @param $table
+     *
+     * @return JsonTable
+     */
     protected function getTableInstance($table)
     {
         if (isset($tables[$table])) {
@@ -34,6 +53,15 @@ class JsonDB
         }
     }
 
+    /**
+     * Call
+     *
+     * @param mixed $op
+     * @param mixed $args
+     *
+     * @return mixed
+     * @throws JsonDBException
+     */
     public function __call($op, $args)
     {
         if ($args && method_exists("philwc\JsonTable", $op)) {
@@ -43,10 +71,17 @@ class JsonDB
                         $args
               );
         } else {
-            throw new \Exception("JsonDB Error: Unknown method or wrong arguments ");
+            throw new JsonDBException('Unknown method or wrong arguments');
         }
     }
 
+    /**
+     * Set Extension
+     *
+     * @param $_fileExt
+     *
+     * @return $this
+     */
     public function setExtension($_fileExt)
     {
         $this->fileExt = $_fileExt;

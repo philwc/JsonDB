@@ -9,6 +9,13 @@ class JsonTable
     protected $fileData = array();
     protected $prettyOutput;
 
+    /**
+     * Construct
+     *
+     * @param string $_jsonFile
+     *
+     * @throws  JsonDBException
+     */
     public function __construct($_jsonFile)
     {
         if (file_exists($_jsonFile)) {
@@ -17,18 +24,26 @@ class JsonTable
             $this->checkJson();
             $this->lockFile();
         } else {
-            throw new \Exception("JsonTable Error: File not found: " . $_jsonFile);
+            throw new JsonDBException('File not found: ' . $_jsonFile);
         }
 
         $this->prettyOutput = true;
     }
 
+    /**
+     * Destruct
+     */
     public function __destruct()
     {
         $this->save();
         fclose($this->fileHandle);
     }
 
+    /**
+     * Check JSON
+     *
+     * @throws JsonDBException
+     */
     protected function checkJson()
     {
         $error = '';
@@ -56,29 +71,47 @@ class JsonTable
         }
 
         if ($error !== '') {
-            throw new \Exception('Invalid JSON: ' . $error);
+            throw new JsonDBException('Invalid JSON: ' . $error);
         }
     }
 
+    /**
+     * Set Pretty Output
+     *
+     * @param bool $val
+     *
+     * @throws JsonDBException
+     */
     public function setPrettyOutput($val)
     {
         if (is_bool($val)) {
             $this->prettyOutput = $val;
         } else {
-            throw new \Exception('Error. Please supply a bool value');
+            throw new JsonDBException('Error. Please supply a bool value');
         }
     }
 
+    /**
+     * Lock File
+     *
+     * @throws JsonDBException
+     */
     protected function lockFile()
     {
         $handle = fopen($this->jsonFile, "w");
         if (flock($handle, LOCK_EX)) {
             $this->fileHandle = $handle;
         } else {
-            throw new \Exception("JsonTable Error: Can't set file-lock");
+            throw new JsonDBException('Can\'t set file-lock');
         }
     }
 
+    /**
+     * Save
+     *
+     * @return bool
+     * @throws JsonDBException
+     */
     protected function save()
     {
         if ($this->prettyOutput) {
@@ -88,21 +121,34 @@ class JsonTable
         }
 
         if ($this->fileData == null) {
-            throw new \Exception("JsonTable Error: Refusing to write null data to: " . $this->jsonFile);
+            throw new JsonDBException('Refusing to write null data to: ' . $this->jsonFile);
         }
 
         if (fwrite($this->fileHandle, json_encode($this->fileData, $flags))) {
             return true;
         } else {
-            throw new \Exception("JsonTable Error: Can't write data to: " . $this->jsonFile);
+            throw new JsonDBException('Can\'t write data to: ' . $this->jsonFile);
         }
     }
 
+    /**
+     * Select All
+     *
+     * @return array|mixed
+     */
     public function selectAll()
     {
         return $this->fileData;
     }
 
+    /**
+     * Select
+     *
+     * @param mixed $key
+     * @param int   $val
+     *
+     * @return array
+     */
     public function select($key, $val = 0)
     {
         $result = array();
@@ -121,6 +167,13 @@ class JsonTable
         return $result;
     }
 
+    /**
+     * Update All
+     *
+     * @param array $data
+     *
+     * @return array
+     */
     public function updateAll($data = array())
     {
         if (isset($data[0]) && substr_compare($data[0], $this->jsonFile, 0)) {
@@ -129,6 +182,15 @@ class JsonTable
         return $this->fileData = array($data);
     }
 
+    /**
+     * Update
+     *
+     * @param mixed $key
+     * @param int   $val
+     * @param array $newData
+     *
+     * @return bool
+     */
     public function update($key, $val = 0, $newData = array())
     {
         $result = false;
@@ -152,6 +214,13 @@ class JsonTable
         return $result;
     }
 
+    /**
+     * Insert
+     *
+     * @param array $data
+     *
+     * @return bool
+     */
     public function insert($data = array())
     {
         if (isset($data[0]) && substr_compare($data[0], $this->jsonFile, 0)) {
@@ -161,12 +230,25 @@ class JsonTable
         return true;
     }
 
+    /**
+     * Delete All
+     *
+     * @return bool
+     */
     public function deleteAll()
     {
         $this->fileData = array();
         return true;
     }
 
+    /**
+     * Delete
+     *
+     * @param mixed $key
+     * @param int   $val
+     *
+     * @return int
+     */
     public function delete($key, $val = 0)
     {
         $result = 0;
@@ -189,5 +271,4 @@ class JsonTable
         }
         return $result;
     }
-
 }
