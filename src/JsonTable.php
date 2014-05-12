@@ -35,7 +35,7 @@ class JsonTable
      */
     public function __destruct()
     {
-        $this->save();
+        flock($this->fileHandle, LOCK_UN);
         fclose($this->fileHandle);
     }
 
@@ -98,7 +98,7 @@ class JsonTable
      */
     protected function lockFile()
     {
-        $handle = fopen($this->jsonFile, "w");
+        $handle = fopen($this->jsonFile, "c+");
         if (flock($handle, LOCK_EX)) {
             $this->fileHandle = $handle;
         } else {
@@ -124,7 +124,9 @@ class JsonTable
             throw new JsonDBException('Refusing to write null data to: ' . $this->jsonFile);
         }
 
+        ftruncate($this->fileHandle, 0);
         if (fwrite($this->fileHandle, json_encode($this->fileData, $flags))) {
+            fflush($this->fileHandle);
             return true;
         } else {
             throw new JsonDBException('Can\'t write data to: ' . $this->jsonFile);
@@ -179,13 +181,13 @@ class JsonTable
      *
      * @return array
      */
-    public
-    function updateAll(
-      $data = array()
-    ) {
+    public function updateAll($data = array())
+    {
         if (isset($data[0]) && substr_compare($data[0], $this->jsonFile, 0)) {
             $data = $data[1];
         }
+
+        $this->save();
         return $this->fileData = array($data);
     }
 
@@ -198,12 +200,8 @@ class JsonTable
      *
      * @return bool
      */
-    public
-    function update(
-      $key,
-      $val = 0,
-      $newData = array()
-    ) {
+    public function update($key, $val = 0, $newData = array())
+    {
         $result = false;
         if (is_array($key)) {
             $result = $this->update($key[1], $key[2], $key[3]);
@@ -222,6 +220,7 @@ class JsonTable
                 $this->fileData = $data;
             }
         }
+        $this->save();
         return $result;
     }
 
@@ -232,14 +231,13 @@ class JsonTable
      *
      * @return bool
      */
-    public
-    function insert(
-      $data = array()
-    ) {
+    public function insert($data = array())
+    {
         if (isset($data[0]) && substr_compare($data[0], $this->jsonFile, 0)) {
             $data = $data[1];
         }
         $this->fileData[] = $data;
+        $this->save();
         return true;
     }
 
@@ -248,10 +246,10 @@ class JsonTable
      *
      * @return bool
      */
-    public
-    function deleteAll()
+    public function deleteAll()
     {
         $this->fileData = array();
+        $this->save();
         return true;
     }
 
@@ -263,11 +261,8 @@ class JsonTable
      *
      * @return int
      */
-    public
-    function delete(
-      $key,
-      $val = 0
-    ) {
+    public function delete($key, $val = 0)
+    {
         $result = 0;
         if (is_array($key)) {
             $result = $this->delete($key[1], $key[2]);
@@ -286,6 +281,7 @@ class JsonTable
                 $this->fileData = $data;
             }
         }
+        $this->save();
         return $result;
     }
 }
