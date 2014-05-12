@@ -144,6 +144,22 @@ class JsonTable
     }
 
     /**
+     * Get Field Names
+     *
+     * @param int $recordNumber
+     *
+     * @return array
+     */
+    public function getFieldNames($recordNumber = 0)
+    {
+        if (isset($this->fileData[$recordNumber])) {
+            return array_keys($$this->fileData[$recordNumber]);
+        } else {
+            return array();
+        }
+    }
+
+    /**
      * Select
      *
      * @param mixed $key
