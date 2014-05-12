@@ -153,7 +153,7 @@ class JsonTable
     public function getFieldNames($recordNumber = 0)
     {
         if (isset($this->fileData[$recordNumber])) {
-            return array_keys($$this->fileData[$recordNumber]);
+            return array_keys($this->fileData[$recordNumber]);
         } else {
             return array();
         }
