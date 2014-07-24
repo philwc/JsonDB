@@ -9,11 +9,19 @@ class JsonDB
     protected $tables = array();
 
     /**
-     * Construct
-     *
+     * @param null $path
+     */
+    public function __construct($path = null)
+    {
+        if ($path !== null) {
+            $this->init($path);
+        }
+    }
+
+    /**
      * @param $path
      */
-    public function __construct($path)
+    public function init($path)
     {
         $this->validatePath($path);
     }
@@ -66,10 +74,11 @@ class JsonDB
     {
         if ($args && method_exists("philwc\JsonTable", $op)) {
             $table = $args[0] . $this->fileExt;
+
             return $this->getTableInstance($table)
                         ->$op(
                         $args
-              );
+                );
         } else {
             throw new JsonDBException('Unknown method or wrong arguments');
         }
@@ -85,6 +94,7 @@ class JsonDB
     public function setExtension($_fileExt)
     {
         $this->fileExt = $_fileExt;
+
         return $this;
     }
 

@@ -10,13 +10,21 @@ class JsonTable
     protected $prettyOutput;
 
     /**
-     * Construct
-     *
-     * @param string $_jsonFile
-     *
-     * @throws  JsonDBException
+     * @param null $_jsonFile
      */
-    public function __construct($_jsonFile)
+    public function __construct($_jsonFile = null)
+    {
+        if ($_jsonFile !== null) {
+            $this->init($_jsonFile);
+        }
+    }
+
+    /**
+     * @param $_jsonFile
+     *
+     * @throws JsonDBException
+     */
+    public function init($_jsonFile)
     {
         if (file_exists($_jsonFile)) {
             $this->jsonFile = $_jsonFile;
@@ -127,6 +135,7 @@ class JsonTable
         ftruncate($this->fileHandle, 0);
         if (fwrite($this->fileHandle, json_encode($this->fileData, $flags))) {
             fflush($this->fileHandle);
+
             return true;
         } else {
             throw new JsonDBException('Can\'t write data to: ' . $this->jsonFile);
@@ -187,6 +196,7 @@ class JsonTable
                 }
             }
         }
+
         return $result;
     }
 
@@ -204,6 +214,7 @@ class JsonTable
         }
 
         $this->save();
+
         return $this->fileData = array($data);
     }
 
@@ -237,6 +248,7 @@ class JsonTable
             }
         }
         $this->save();
+
         return $result;
     }
 
@@ -254,6 +266,7 @@ class JsonTable
         }
         $this->fileData[] = $data;
         $this->save();
+
         return true;
     }
 
@@ -266,6 +279,7 @@ class JsonTable
     {
         $this->fileData = array();
         $this->save();
+
         return true;
     }
 
@@ -298,6 +312,7 @@ class JsonTable
             }
         }
         $this->save();
+
         return $result;
     }
 }
