@@ -304,7 +304,12 @@ class JsonTable
         } else {
             $data = $this->fileData;
             foreach ($data as $_key => $_val) {
-                if (isset($data[$_key][$key])) {
+
+                if ($val === false && $_key == $key) {
+                    unset($data[$_key]);
+                    $result++;
+                    break;
+                } elseif (isset($data[$_key][$key])) {
                     if ($data[$_key][$key] == $val) {
                         unset($data[$_key]);
                         $result++;
