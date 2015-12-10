@@ -281,32 +281,25 @@ class JsonTable
      */
     public function update($key, $val = 0, $newData = array())
     {
-        $result = false;
-        if (is_array($key)) {
-            $result = $this->update($key[1], $key[2], $key[3]);
+        if ( is_array( $key ) ) {
+            if ( count( $key ) == 4 )
+                return $this->update( $key[1], $key[2], $key[3] );
         } else {
-            $data = $this->fileData;
-            foreach ($data as $_key => $_val) {
-
-                if ($val === false) {
-                    $data[$key] = $newData;
-                    $result     = true;
-                    break;
-                } elseif (isset($data[$_key][$key])) {
-                    if ($data[$_key][$key] == $val) {
-                        $data[$_key] = $newData;
-                        $result      = true;
-                        break;
-                    }
+            if( count( $this->select( $key, $val ) ) != 0 ) {
+                $data = $this->fileData;
+                $resultData = [];
+                foreach ($data as $_key => $_val) {
+                    if( $data[$_key][$key] == $val )
+                        array_push( $resultData, $newData );
+                    else
+                        array_push( $resultData, $_val);
                 }
-            }
-            if ($result) {
-                $this->fileData = $data;
-            }
+                $this->fileData = $resultData;
+                $this->save();
+                return true;
+            } else
+                return false;
         }
-        $this->save();
-
-        return $result;
     }
 
     /**
