@@ -201,6 +201,58 @@ class JsonTable
     }
 
     /**
+     * Between
+     *
+     * @param mixed $key
+     * @param int   $min
+     * @param int   $max
+     *
+     * @return array
+     */
+    public function between($key, $min = 0, $max = 0) {
+        if ( is_array( $key ) ) {
+            if ( count( $key ) == 4 )
+                $result = $this->between( $key[1], $key[2], $key[3] );
+        } else {
+            $data = $this->fileData;
+            $result = [];
+            foreach ($data as $_key => $_val) {
+                if ( isset( $data[$_key][$key] ) ) {
+                    if ( $min <= $data[$_key][$key] and $data[$_key][$key] <= $max ) {
+                        array_push( $result, $_val );
+                    }
+                }
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * Like
+     *
+     * @param mixed   $key
+     * @param string  $like
+     *
+     * @return array
+     */
+    public function like($key, $like = null) {
+        if ( is_array( $key ) ) {
+            if ( count( $key ) == 3 )
+                $result = $this->like( $key[1], $key[2] );
+        } else {
+            $data = $this->fileData;
+            $result = [];
+            foreach ($data as $_key => $_val) {
+                if ( isset( $data[$_key][$key] ) ) {
+                    if ( strrpos( $data[$_key][$key], $like ) )
+                        array_push( $result, $_val );
+                }
+            }
+        }
+        return $result;
+    }
+
+    /**
      * Update All
      *
      * @param array $data
