@@ -128,8 +128,10 @@ class JsonTable
             $flags = 0;
         }
 
-        if ($this->fileData == null || $this->fileData == '' || empty($this->fileData)) {
-            throw new JsonDBException('Refusing to write null data to: ' . $this->jsonFile);
+        if ( !is_array( $this->fileData ) ) {
+            if ($this->fileData == null || $this->fileData == '' || empty($this->fileData)) {
+                throw new JsonDBException('Refusing to write null data to: ' . $this->jsonFile);
+            }
         }
 
         ftruncate($this->fileHandle, 0);
