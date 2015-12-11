@@ -341,33 +341,25 @@ class JsonTable
      *
      * @return int
      */
-    public function delete($key, $val = 0)
-    {
-        $result = 0;
-        if (is_array($key)) {
-            $result = $this->delete($key[1], $key[2]);
+    public function delete($key, $val = 0) {
+        if ( is_array( $key ) ) {
+            if ( count( $key ) == 3 )
+                return $this->delete($key[1], $key[2]);
+            return 0;
         } else {
             $data = $this->fileData;
+            $i = 0;
             foreach ($data as $_key => $_val) {
-
-                if ($val === false && $_key == $key) {
-                    unset($data[$_key]);
-                    $result++;
-                    break;
-                } elseif (isset($data[$_key][$key])) {
+                if ( isset( $data[$_key][$key] ) ) {
                     if ($data[$_key][$key] == $val) {
-                        unset($data[$_key]);
-                        $result++;
+                        unset( $data[$_key] );
+                        $i++;
                     }
                 }
             }
-            if ($result) {
-                sort($data);
-                $this->fileData = $data;
-            }
         }
+        $this->fileData = $data;
         $this->save();
-
-        return $result;
+        return $i;
     }
 }
