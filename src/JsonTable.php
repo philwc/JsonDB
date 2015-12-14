@@ -128,8 +128,10 @@ class JsonTable
             $flags = 0;
         }
 
-        if ($this->fileData == null || $this->fileData == '' || empty($this->fileData)) {
-            throw new JsonDBException('Refusing to write null data to: ' . $this->jsonFile);
+        if ( !is_array( $this->fileData ) ) {
+            if ($this->fileData == null || $this->fileData == '' || empty($this->fileData)) {
+                throw new JsonDBException('Refusing to write null data to: ' . $this->jsonFile);
+            }
         }
 
         ftruncate($this->fileHandle, 0);
@@ -281,32 +283,25 @@ class JsonTable
      */
     public function update($key, $val = 0, $newData = array())
     {
-        $result = false;
-        if (is_array($key)) {
-            $result = $this->update($key[1], $key[2], $key[3]);
+        if ( is_array( $key ) ) {
+            if ( count( $key ) == 4 )
+                return $this->update( $key[1], $key[2], $key[3] );
         } else {
-            $data = $this->fileData;
-            foreach ($data as $_key => $_val) {
-
-                if ($val === false) {
-                    $data[$key] = $newData;
-                    $result     = true;
-                    break;
-                } elseif (isset($data[$_key][$key])) {
-                    if ($data[$_key][$key] == $val) {
-                        $data[$_key] = $newData;
-                        $result      = true;
-                        break;
-                    }
+            if( count( $this->select( $key, $val ) ) != 0 ) {
+                $data = $this->fileData;
+                $resultData = [];
+                foreach ($data as $_key => $_val) {
+                    if( $data[$_key][$key] == $val )
+                        array_push( $resultData, $newData );
+                    else
+                        array_push( $resultData, $_val);
                 }
-            }
-            if ($result) {
-                $this->fileData = $data;
-            }
+                $this->fileData = $resultData;
+                $this->save();
+                return true;
+            } else
+                return false;
         }
-        $this->save();
-
-        return $result;
     }
 
     /**
@@ -348,33 +343,25 @@ class JsonTable
      *
      * @return int
      */
-    public function delete($key, $val = 0)
-    {
-        $result = 0;
-        if (is_array($key)) {
-            $result = $this->delete($key[1], $key[2]);
+    public function delete($key, $val = 0) {
+        if ( is_array( $key ) ) {
+            if ( count( $key ) == 3 )
+                return $this->delete($key[1], $key[2]);
+            return 0;
         } else {
             $data = $this->fileData;
+            $i = 0;
             foreach ($data as $_key => $_val) {
-
-                if ($val === false && $_key == $key) {
-                    unset($data[$_key]);
-                    $result++;
-                    break;
-                } elseif (isset($data[$_key][$key])) {
+                if ( isset( $data[$_key][$key] ) ) {
                     if ($data[$_key][$key] == $val) {
-                        unset($data[$_key]);
-                        $result++;
+                        unset( $data[$_key] );
+                        $i++;
                     }
                 }
             }
-            if ($result) {
-                sort($data);
-                $this->fileData = $data;
-            }
         }
+        $this->fileData = $data;
         $this->save();
-
-        return $result;
+        return $i;
     }
 }
