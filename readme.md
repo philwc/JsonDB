@@ -51,6 +51,10 @@ If you use a different file extension as ".json", set them via "JsonDB -> setExt
 > **JsonDB -> delete ( "table", "key", "value" )** - Deletes all lines which corresponds to the key/value, returns number of deleted lines
 >
 > **JsonDB -> deleteAll ( "table" )** - Deletes the whole data, returns "true" on success
+>
+> **JsonDB -> setPrettyOutput ( "table", bool )** - Set Pretty Output for json_encode
+>
+> **JsonDB -> setJsonEncodeOptions ( "table", int )** - Set options for json_encode
 
 
 ----------

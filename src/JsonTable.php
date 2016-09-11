@@ -8,6 +8,7 @@ class JsonTable
     protected $fileHandle;
     protected $fileData = array();
     protected $prettyOutput;
+    protected $jsonEncodeOptions = 0;
 
     /**
      * @param null $_jsonFile
@@ -21,6 +22,7 @@ class JsonTable
 
     /**
      * @param $_jsonFile
+     * @return $this
      *
      * @throws JsonDBException
      */
@@ -36,6 +38,7 @@ class JsonTable
         }
 
         $this->prettyOutput = true;
+        return $this;
     }
 
     /**
@@ -87,6 +90,7 @@ class JsonTable
      * Set Pretty Output
      *
      * @param bool $val
+     * @return $this
      *
      * @throws JsonDBException
      */
@@ -97,6 +101,35 @@ class JsonTable
         } else {
             throw new JsonDBException('Error. Please supply a bool value');
         }
+        return $this;
+    }
+
+    /**
+     * Return options for json_encode.
+     *
+     * @return int
+     */
+    public function getJsonEncodeOptions()
+    {
+        return $this->jsonEncodeOptions;
+    }
+
+    /**
+     * Set options for json_encode.
+     *
+     * @param int $val
+     * @return $this
+     *
+     * @throws JsonDBException
+     */
+    public function setJsonEncodeOptions($val)
+    {
+        if (is_int($val)) {
+            $this->jsonEncodeOptions = $val;
+        } else {
+            throw new JsonDBException('Error. Please supply a int value');
+        }
+        return $this;
     }
 
     /**
@@ -122,10 +155,9 @@ class JsonTable
      */
     protected function save()
     {
+        $flags = $this->jsonEncodeOptions;
         if ($this->prettyOutput) {
-            $flags = JSON_PRETTY_PRINT;
-        } else {
-            $flags = 0;
+            $flags = JSON_PRETTY_PRINT | $flags;
         }
 
         if ( !is_array( $this->fileData ) ) {
