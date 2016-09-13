@@ -4,9 +4,9 @@ namespace philwc;
 class JsonDB
 {
 
-    protected $path = "./";
-    protected $fileExt = ".json";
-    protected $tables = array();
+    protected $path    = './';
+    protected $fileExt = '.json';
+    protected $tables  = [];
 
     /**
      * @param null $path
@@ -20,6 +20,7 @@ class JsonDB
 
     /**
      * @param $path
+     * @throws \philwc\JsonDBException
      */
     public function init($path)
     {
@@ -36,13 +37,14 @@ class JsonDB
     private function validatePath($path)
     {
         if (is_dir($path)) {
-            if (substr($path, strlen($path) - 1) != '/') {
+            if (substr($path, strlen($path) - 1) !== '/') {
                 $path .= '/';
             }
             $this->path = $path;
-        } else {
-            throw new JsonDBException('Path not found');
+            return;
         }
+
+        throw new JsonDBException('Path not found');
     }
 
     /**
@@ -51,14 +53,16 @@ class JsonDB
      * @param $table
      *
      * @return JsonTable
+     * @throws \philwc\JsonDBException
      */
     protected function getTableInstance($table)
     {
-        if (isset($tables[$table])) {
-            return $tables[$table];
-        } else {
-            return $tables[$table] = new JsonTable($this->path . $table);
+        if (array_key_exists($table, $this->tables)) {
+            return $this->tables[$table];
         }
+
+        $this->tables[$table] = new JsonTable($this->path . $table);
+        return $this->tables[$table];
     }
 
     /**
@@ -73,15 +77,16 @@ class JsonDB
     public function __call($op, $args)
     {
         if ($args && method_exists("philwc\JsonTable", $op)) {
-            $table = $args[0] . $this->fileExt;
+            $table = array_shift($args);
 
-            return $this->getTableInstance($table)
-                        ->$op(
-                        $args
-                );
-        } else {
-            throw new JsonDBException('Unknown method or wrong arguments');
+            $tableFile = $table . $this->fileExt;
+            /** @var \philwc\JsonTable $instance */
+            $instance = $this->getTableInstance($tableFile);
+
+            return $instance->$op($args);
         }
+
+        throw new JsonDBException('Unknown method or wrong arguments');
     }
 
     /**
@@ -97,5 +102,4 @@ class JsonDB
 
         return $this;
     }
-
 }

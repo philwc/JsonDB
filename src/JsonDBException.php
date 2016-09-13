@@ -1,11 +1,6 @@
 <?php
-/**
- * @author Philip Wright- Christie <pwrightchristie.sfp@gmail.com>
- * Date: 08/05/14
- */
 
 namespace philwc;
-
 
 class JsonDBException extends \Exception
 {
@@ -16,7 +11,6 @@ class JsonDBException extends \Exception
         parent::__construct($message, $code, $previous);
     }
 
-    // custom string representation of object
     public function __toString()
     {
         return __CLASS__ . ": [{$this->code}]: {$this->message}\n";

@@ -1,11 +1,8 @@
-# JSON DB #
-*Forked From Straussn's JSON-Databaseclass*
+# JSON DB
 
-This serves to clean up the original classes and make composer compatible.
+"Handle JSON-Files like a very, very simple DB. Useful for little ajax applications."
 
-*Handle JSON-Files like a very, very simple DB. Useful for little ajax applications.*
-
-**Example:**
+## Example
 
 *test.json*
 
@@ -25,44 +22,34 @@ This serves to clean up the original classes and make composer compatible.
 
 *result:*
 
-> array(2) {
-[0]=> array(3) { ["ID"]=> int(0) ["Name"]=> string(13) "Josef Brunzer" ["Age"]=> int(43) }
-[1]=> array(3) { ["ID"]=> int(3) ["Name"]=> string(15) "Gerald Ofnsacka" ["Age"]=> int(43) }
+```php
+array(2) {
+    [0]=> array(3) { ["ID"]=> int(0) ["Name"]=> string(13) "Josef Brunzer" ["Age"]=> int(43) }
+    [1]=> array(3) { ["ID"]=> int(3) ["Name"]=> string(15) "Gerald Ofnsacka" ["Age"]=> int(43) }
 }
+```
 
+## Method Overview
 
-If you use a different file extension as ".json", set them via "JsonDB -> setExtension ('.example')"
+```php
+JsonDB->select ( "table", "key", "value" ) //Selects multiple lines which contains the key/value and returns it as array
+JsonDB->selectAll ( "table" ) //Returns the entire file as array
+JsonDB->update ( "table", "key", "value", ARRAY ) //Replaces the line which corresponds to the key/value with the array-data
+JsonDB->updateAll ( "table", ARRAY ) //Replaces the entire file with the array-data
+JsonDB->insert ( "table", ARRAY ) //Appends a row, returns true on success
+JsonDB->delete ( "table", "key", "value" ) //Deletes all lines which corresponds to the key/value, returns number of deleted lines
+JsonDB->deleteAll ( "table" ) //Deletes the whole data, returns "true" on success
+JsonDB->setPrettyOutput ( "table", bool ) //Set Pretty Output for json_encode
+JsonDB->setJsonEncodeOptions ( "table", int ) //Set options for json_encode
+JsonDB->setExtension( "newExtension" ) //Set the file extension to use
+```
 
-----------
-
-
-**Method Overview:**
-
-> **JsonDB -> select ( "table", "key", "value" )** - Selects multible lines which contains the key/value and returns it as array
->
-> **JsonDB -> selectAll ( "table" )**  - Returns the entire file as array
->
-> **JsonDB -> update ( "table", "key", "value", ARRAY )** - Replaces the line which corresponds to the key/value with the array-data
->
-> **JsonDB -> updateAll ( "table", ARRAY )** - Replaces the entire file with the array-data
->
-> **JsonDB -> insert ( "table", ARRAY )** - Appends a row, returns true on success
->
-> **JsonDB -> delete ( "table", "key", "value" )** - Deletes all lines which corresponds to the key/value, returns number of deleted lines
->
-> **JsonDB -> deleteAll ( "table" )** - Deletes the whole data, returns "true" on success
->
-> **JsonDB -> setPrettyOutput ( "table", bool )** - Set Pretty Output for json_encode
->
-> **JsonDB -> setJsonEncodeOptions ( "table", int )** - Set options for json_encode
-
-
-----------
-If you use only one json file to store data, you can also use the "JsonTable" Class:
+If you use only one json file to store data, you can also use the `JsonTable` Class:
 
 	$db     = new \philwc\JsonTable('./data/test.json');
     $result = $db->select('Age', 43);
     var_dump($result);
 
+In this case, you don't have always to specify the table name.
 
-In this case, you don't have always to specify the "tablename".
+Tests are located in /tests. Run `phpunit` to run. 

@@ -13,11 +13,18 @@
     ],
     "require": {
     },
+    "require-dev": {
+        "phpunit/phpunit": "^5.2"
+    },
     "autoload": {
         "psr-4": {
             "philwc\\": "src/"
         }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "philwc\\Test\\": "test/"
+        }
     }
-
 }
 
