@@ -46,9 +46,11 @@ JsonDB->setExtension( "newExtension" ) //Set the file extension to use
 
 If you use only one json file to store data, you can also use the `JsonTable` Class:
 
-	$db     = new \philwc\JsonTable('./data/test.json');
-    $result = $db->select('Age', 43);
-    var_dump($result);
+```php
+$db     = new \philwc\JsonTable('./data/test.json');
+$result = $db->select('Age', 43);
+var_dump($result);
+```
 
 In this case, you don't have always to specify the table name.
 
